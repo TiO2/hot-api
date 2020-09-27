@@ -1,4 +1,4 @@
-#!/usr/local/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import json
@@ -63,8 +63,7 @@ class Spider(object):
             if "javascript:void(0)" in wb_url:
                 pass
             else:
-                site = 'Weibo Resou'
-                list_weibo.append([site,wb_title,wb_url])
+                list_weibo.append([wb_title,wb_url])
                 # add the site information, identifier
         list_weibo = [item+['Weibo Hot'] for item in list_weibo]
         return packdata(list_weibo)
