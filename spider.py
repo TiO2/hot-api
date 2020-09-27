@@ -1,9 +1,13 @@
+#!/usr/local/env python
 # -*- coding: utf-8 -*-
 
 import json
 import requests
 from lxml import etree
-from threading import Timer
+import datetime
+
+o = datetime.datetime.utcnow()
+theDate = "{}-{}-{}".format(o.year,o.month,o.day)
 
 vsite_api = "https://www.v2ex.com/?tab=hot"
 bsite_api = 'https://www.bilibili.com/ranking/all/0/0/1'
@@ -17,8 +21,10 @@ def packdata(para_data):
     list_data = []
     for i in para_data:
         data = {}
+        data['date']=theDate
         data["title"]=i[0]
         data["url"]=i[1]
+        data['site'] = i[2]
         list_data.append(data)
     return list_data
     
@@ -41,6 +47,8 @@ class Spider(object):
             zhihu_id = part_zhihu_data['target']['id']    #从对象得到问题的id
             zhihu_title = part_zhihu_data['target']['title'] #从对象得到问题的title
             list_zhihu.append([zhihu_title,zhihu_id])          #将id 和title组为一个列表，并添加在list_zhihu列表中
+        # add the site information, identifier
+        list_zhihu = [item+['Zhihu Hot'] for item in list_zhihu]
         return packdata(list_zhihu)
     
     #微博热搜
@@ -55,9 +63,11 @@ class Spider(object):
             if "javascript:void(0)" in wb_url:
                 pass
             else:
-                list_weibo.append([wb_title,wb_url])
+                site = 'Weibo Resou'
+                list_weibo.append([site,wb_title,wb_url])
+                # add the site information, identifier
+        list_weibo = [item+['Weibo Hot'] for item in list_weibo]
         return packdata(list_weibo)
-
 
     #贴吧热度榜单
     def spider_tieba(self):
@@ -67,8 +77,8 @@ class Spider(object):
             tieba_title = soup_a.text
             tieba_url = soup_a.get('href')
             list_tieba.append([tieba_title,tieba_url])
+        list_tieba = [item+['Tieba Hot'] for item in list_tieba]
         return packdata(list_tieba)
-
 
     #V2EX热度榜单
     def spider_vsite(self):
@@ -79,6 +89,7 @@ class Spider(object):
             vsite_title = soup_a.text
             vsite_url = vsite+soup_a.get('href')
             list_v2ex.append([vsite_title,vsite_url])
+        list_v2ex = [item+['V2ex Hot'] for item in list_v2ex]
         return packdata(list_v2ex)
 
     #B站排行榜
@@ -89,7 +100,10 @@ class Spider(object):
             bsite_title = i.xpath('text()')[0]
             bsite_url = i.get('href')
             list_bsite.append([bsite_title,bsite_url])
+        list_bsite = [item+['Bsite Hot'] for item in list_bsite]
         return packdata(list_bsite)
-        
-Spider().spider_bsite()
 
+
+if __name__=='__main__':
+    aa = Spider().spider_bsite()
+    print(aa)
